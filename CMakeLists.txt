@@ -83,6 +83,6 @@ add_library(PICo24_Core "${PICo24_Core_SOURCES}")
 target_link_libraries(PICo24_Core PUBLIC PICo24_ScratchLibc)
 
 set(LWIP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Components/lwip)
-include(Components/lwip/src/Filelists.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/Components/lwip/src/Filelists.cmake)
 target_link_libraries(lwipallapps PUBLIC lwipcore)
 
