@@ -74,3 +74,6 @@ Due to shortage of raw materials of PotatoPi Lite, PotatoPi PICo24 had to be rel
 | FreeRTOS | OK, well tested |
 | LwIP | OK, tested PPPoS, ping and HTTP srv|
 | Lua | OK, tested luaL_dostring()|
+
+## Licensing
+AGPLv3. Also read [this FAQ](https://www.gnu.org/licenses/gpl-faq.html#GPLRequireSourcePostedPublic).
