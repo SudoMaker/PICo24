@@ -51,6 +51,8 @@ function(pico24_enable_freertos)
 endfunction()
 
 function(pico24_use_board BOARD)
+    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/Boards/${BOARD}/CPU.txt PICo24_Board_CPU_${BOARD})
+    pico24_add_board(${BOARD} ${PICo24_Board_CPU_${BOARD}})
     message("-- PICo24: Using board: ${BOARD}, CPU: ${PICo24_Board_CPU_${BOARD}}")
     include_directories("Boards/${BOARD}")
     target_compile_options(PICo24_Core PRIVATE -mcpu=${PICo24_Board_CPU_${BOARD}})
@@ -63,8 +65,8 @@ function(pico24_use_board BOARD)
 endfunction()
 
 # Boards
-pico24_add_board(PotatoPi_PICo24 24FJ256GB206)
-pico24_add_board(CartBoy_RW_v2 24FJ256GB108)
+#pico24_add_board(PotatoPi_PICo24 24FJ256GB206)
+#pico24_add_board(CartBoy_RW_v2 24FJ256GB108)
 
 # Global CFLAGS
 include_directories(Components)
