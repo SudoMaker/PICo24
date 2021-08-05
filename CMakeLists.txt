@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
-project(PICo24_SDK C CXX ASM)
+project(PICo24_SDK C ASM)
 set(CMAKE_C_STANDARD 99)
 
-set(XC16_DISABLE_DEFAULT_LINKER_SCRIPT 1)
-include(CMake/FindXC16.cmake)
-
-add_link_options(-Wl,--gc-sections,--no-select-objects,--heap=0,--stack=128)
+#set(XC16_DISABLE_DEFAULT_LINKER_SCRIPT 1)
+#include(CMake/FindXC16.cmake)
+#
+#add_link_options(-Wl,--gc-sections,--no-select-objects,--heap=0,--stack=128)
 
 function(add_library_whole NAME SRCS)
     # xc16-ld won't copy the interrupt handlers when linking with no extra options
