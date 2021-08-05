@@ -77,23 +77,23 @@ endfunction()
 #pico24_add_board(CartBoy_RW_v2 24FJ256GB108)
 
 # Global CFLAGS
-include_directories(Components)
+include_directories(${PICo24_SOURCE_DIR}/Components)
 
-file(GLOB_RECURSE PICo24_ScratchLibc_SOURCES "Components/ScratchLibc/*.*")
+file(GLOB_RECURSE PICo24_ScratchLibc_SOURCES "${PICo24_SOURCE_DIR}/Components/ScratchLibc/*.*")
 add_library(PICo24_ScratchLibc "${PICo24_ScratchLibc_SOURCES}")
 
-file(GLOB_RECURSE PICo24_FreeRTOS_SOURCES "Components/FreeRTOS/*.*")
+file(GLOB_RECURSE PICo24_FreeRTOS_SOURCES "${PICo24_SOURCE_DIR}/Components/FreeRTOS/*.*")
 add_library(PICo24_FreeRTOS "${PICo24_FreeRTOS_SOURCES}")
 
-file(GLOB_RECURSE PICo24_Lua_SOURCES "Components/Lua/*.*")
+file(GLOB_RECURSE PICo24_Lua_SOURCES "${PICo24_SOURCE_DIR}/Components/Lua/*.*")
 add_library(PICo24_Lua "${PICo24_Lua_SOURCES}")
 
-file(GLOB_RECURSE PICo24_Core_SOURCES "Components/PICo24/*.*")
+file(GLOB_RECURSE PICo24_Core_SOURCES "${PICo24_SOURCE_DIR}/Components/PICo24/*.*")
 add_library(PICo24_Core "${PICo24_Core_SOURCES}")
 target_link_libraries(PICo24_Core PUBLIC PICo24_ScratchLibc)
 
-set(LWIP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Components/lwip)
-include(${CMAKE_CURRENT_SOURCE_DIR}/Components/lwip/src/Filelists.cmake)
+set(LWIP_DIR ${PICo24_SOURCE_DIR}/Components/lwip)
+include(${PICo24_SOURCE_DIR}/Components/lwip/src/Filelists.cmake)
 target_link_libraries(lwipallapps PUBLIC lwipcore)
 
 #set(PICo24_Board PotatoPi_PICo24)
