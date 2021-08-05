@@ -53,7 +53,7 @@ function(pico24_use_board BOARD)
     file(READ ${BOARD_DIR}/CPU.txt CPU_NAME)
     message("-- PICo24: Using board: ${BOARD}, CPU: ${CPU_NAME}")
 
-    set(OUT_NAME "PICo24_Board_${BOARD_NAME}")
+    set(OUT_NAME "PICo24_Board_${BOARD}")
     file(GLOB_RECURSE BOARD_SOURCES "${BOARD_DIR}/*.*")
     set(PICo24_Board_Sources_${BOARD_NAME} ${BOARD_SOURCES} PARENT_SCOPE)
     add_library_whole(${OUT_NAME} "${BOARD_SOURCES}")
