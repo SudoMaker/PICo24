@@ -7,6 +7,11 @@ set(CMAKE_C_STANDARD 99)
 #
 #add_link_options(-Wl,--gc-sections,--no-select-objects,--heap=0,--stack=128)
 
+set(PICo24_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(PICo24_SOURCE_DIR ${PICo24_SOURCE_DIR} PARENT_SCOPE)
+
+message("-- PICo24 Source Dir: ${PICo24_SOURCE_DIR}")
+
 function(add_library_whole NAME SRCS)
     # xc16-ld won't copy the interrupt handlers when linking with no extra options
     # Microchip's customer support can't give you anything other than "Warm Regards" lol
@@ -21,18 +26,10 @@ endfunction()
 
 function(pico24_add_board BOARD_NAME CPU_NAME)
 #    message("-- PICo24: Adding board: ${BOARD_NAME} ${CPU_NAME}")
-    set(BOARD_DIR "Boards/${BOARD_NAME}")
-    set(OUT_NAME "PICo24_Board_${BOARD_NAME}")
     set(PICo24_Board_CPU_${BOARD_NAME} ${CPU_NAME})
     set(PICo24_Board_CPU_${BOARD_NAME} ${PICo24_Board_CPU_${BOARD_NAME}} PARENT_SCOPE)
 
-    file(GLOB_RECURSE BOARD_SOURCES "${BOARD_DIR}/*.*")
-    set(PICo24_Board_Sources_${BOARD_NAME} ${BOARD_SOURCES} PARENT_SCOPE)
-    add_library_whole(${OUT_NAME} "${BOARD_SOURCES}")
 
-    target_include_directories(${OUT_NAME} INTERFACE ${BOARD_DIR})
-    target_compile_options(${OUT_NAME}_ PUBLIC -mcpu=${CPU_NAME})
-    target_link_options(${OUT_NAME} INTERFACE -Wl,--script=${CMAKE_SOURCE_DIR}/${BOARD_DIR}/USBApp.ld)
 endfunction()
 
 function(pico24_enable_peripherals)
@@ -51,9 +48,20 @@ function(pico24_enable_freertos)
 endfunction()
 
 function(pico24_use_board BOARD)
-    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/Boards/${BOARD}/CPU.txt PICo24_Board_CPU_${BOARD})
-    pico24_add_board(${BOARD} ${PICo24_Board_CPU_${BOARD}})
+    set(BOARD_DIR ${PICo24_SOURCE_DIR}/Boards/${BOARD})
+
+    file(READ ${BOARD_DIR}/CPU.txt PICo24_Board_CPU_${BOARD})
     message("-- PICo24: Using board: ${BOARD}, CPU: ${PICo24_Board_CPU_${BOARD}}")
+
+    set(OUT_NAME "PICo24_Board_${BOARD_NAME}")
+    file(GLOB_RECURSE BOARD_SOURCES "${BOARD_DIR}/*.*")
+    set(PICo24_Board_Sources_${BOARD_NAME} ${BOARD_SOURCES} PARENT_SCOPE)
+    add_library_whole(${OUT_NAME} "${BOARD_SOURCES}")
+
+    target_include_directories(${OUT_NAME} INTERFACE ${BOARD_DIR})
+    target_compile_options(${OUT_NAME}_ PUBLIC -mcpu=${CPU_NAME})
+    target_link_options(${OUT_NAME} INTERFACE -Wl,--script=${CMAKE_SOURCE_DIR}/${BOARD_DIR}/USBApp.ld)
+
     include_directories("Boards/${BOARD}")
     target_compile_options(PICo24_Core PRIVATE -mcpu=${PICo24_Board_CPU_${BOARD}})
     target_compile_options(PICo24_ScratchLibc PRIVATE -mcpu=${PICo24_Board_CPU_${BOARD}})
@@ -88,3 +96,5 @@ set(LWIP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Components/lwip)
 include(${CMAKE_CURRENT_SOURCE_DIR}/Components/lwip/src/Filelists.cmake)
 target_link_libraries(lwipallapps PUBLIC lwipcore)
 
+#set(PICo24_Board PotatoPi_PICo24)
+#pico24_use_board(${PICo24_Board})
