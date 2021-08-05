@@ -36,6 +36,7 @@ function(pico24_enable_peripherals)
     foreach(NAME ${ARGV})
         message("-- PICo24: Enabling peripheral: ${NAME}")
         add_compile_definitions(PICo24_Enable_Peripheral_${NAME})
+        target_compile_definitions(PICo24_Core PUBLIC PICo24_Enable_Peripheral_${NAME})
         endforeach()
 endfunction()
 
