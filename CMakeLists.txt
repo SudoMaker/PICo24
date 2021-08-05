@@ -62,6 +62,7 @@ function(pico24_use_board BOARD)
     target_compile_options(${OUT_NAME}_ PUBLIC -mcpu=${CPU_NAME})
     target_link_options(${OUT_NAME} INTERFACE -Wl,--script=${BOARD_DIR}/USBApp.ld)
 
+    include_directories(${PICo24_SOURCE_DIR}/Components)
     include_directories("${BOARD_DIR}")
     target_compile_options(PICo24_Core PRIVATE -mcpu=${CPU_NAME})
     target_compile_options(PICo24_ScratchLibc PRIVATE -mcpu=${CPU_NAME})
