@@ -230,25 +230,31 @@ EXTINT_HandleTypeDef hextint4 = {
 	.INTCON_Offset = 4
 };
 
-void __attribute__ ((interrupt, no_auto_psv)) _INT0Interrupt() {
+void __attribute__ ((interrupt, auto_psv)) _INT0Interrupt() {
 	EXTINT_RunCallback(&hextint0);
+	IFS0bits.INT0IF = 0;
 }
 
-void __attribute__ ((interrupt, no_auto_psv)) _INT1Interrupt() {
+void __attribute__ ((interrupt, auto_psv)) _INT1Interrupt() {
 	EXTINT_RunCallback(&hextint1);
+	IFS1bits.INT1IF = 0;
 }
 
-void __attribute__ ((interrupt, no_auto_psv)) _INT2Interrupt() {
+void __attribute__ ((interrupt, auto_psv)) _INT2Interrupt() {
 	EXTINT_RunCallback(&hextint2);
+	IFS1bits.INT2IF = 0;
 }
 
-void __attribute__ ((interrupt, no_auto_psv)) _INT3Interrupt() {
+void __attribute__ ((interrupt, auto_psv)) _INT3Interrupt() {
 	EXTINT_RunCallback(&hextint3);
+	IFS3bits.INT3IF = 0;
 }
 
-void __attribute__ ((interrupt, no_auto_psv)) _INT4Interrupt() {
+void __attribute__ ((interrupt, auto_psv)) _INT4Interrupt() {
 	EXTINT_RunCallback(&hextint4);
+	IFS3bits.INT4IF = 0;
 }
+
 #endif
 
 #ifdef PICo24_Enable_Peripheral_I2C

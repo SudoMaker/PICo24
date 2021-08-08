@@ -197,42 +197,19 @@ EXTINT_HandleTypeDef hextint2 = {
 	.INTCON_Offset = 2
 };
 
-EXTINT_HandleTypeDef hextint3 = {
-	.IEC = &IEC3,
-	.IFS = &IFS3,
-	.INTCON = &INTCON2,
-	.IEC_Offset = 5,
-	.IFS_Offset = 5,
-	.INTCON_Offset = 3
-};
-
-EXTINT_HandleTypeDef hextint4 = {
-	.IEC = &IEC3,
-	.IFS = &IFS3,
-	.INTCON = &INTCON2,
-	.IEC_Offset = 6,
-	.IFS_Offset = 6,
-	.INTCON_Offset = 4
-};
-
-void __attribute__ ((interrupt, no_auto_psv)) _INT0Interrupt() {
+void __attribute__ ((interrupt, auto_psv)) _INT0Interrupt() {
 	EXTINT_RunCallback(&hextint0);
+	IFS0bits.INT0IF = 0;
 }
 
-void __attribute__ ((interrupt, no_auto_psv)) _INT1Interrupt() {
+void __attribute__ ((interrupt, auto_psv)) _INT1Interrupt() {
 	EXTINT_RunCallback(&hextint1);
+	IFS1bits.INT1IF = 0;
 }
 
-void __attribute__ ((interrupt, no_auto_psv)) _INT2Interrupt() {
+void __attribute__ ((interrupt, auto_psv)) _INT2Interrupt() {
 	EXTINT_RunCallback(&hextint2);
-}
-
-void __attribute__ ((interrupt, no_auto_psv)) _INT3Interrupt() {
-	EXTINT_RunCallback(&hextint3);
-}
-
-void __attribute__ ((interrupt, no_auto_psv)) _INT4Interrupt() {
-	EXTINT_RunCallback(&hextint4);
+	IFS1bits.INT2IF = 0;
 }
 #endif
 

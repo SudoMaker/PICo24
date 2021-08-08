@@ -178,8 +178,13 @@ extern int umm_max_critical_depth;
 }
     #define UMM_CRITICAL_EXIT()  (umm_critical_depth--)
 #else
+#ifdef PICo24_FreeRTOS_Enabled
 #define UMM_CRITICAL_ENTRY() taskENTER_CRITICAL()
 #define UMM_CRITICAL_EXIT() taskEXIT_CRITICAL()
+#else
+#define UMM_CRITICAL_ENTRY()
+#define UMM_CRITICAL_EXIT()
+#endif
 #endif
 
 /*
