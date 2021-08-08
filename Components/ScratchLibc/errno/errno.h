@@ -59,3 +59,5 @@
 #ifndef ERANGE
 #define ERANGE          34      /* Math result not representable */
 #endif
+
+#define ENOSYS		38

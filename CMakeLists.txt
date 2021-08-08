@@ -73,23 +73,31 @@ function(pico24_target_configure TARGET BOARD PERIPH_LIST FEATURE_LIST)
     target_compile_options(PICo24_ScratchLibc_For_${TARGET} PRIVATE -mcpu=${CPU_NAME})
     target_include_directories(PICo24_ScratchLibc_For_${TARGET} PUBLIC ${PICo24_SRC_DIR}/Components)
 
-    add_library(PICo24_FreeRTOS_For_${TARGET} "${PICo24_FreeRTOS_SOURCES}")
-    target_compile_options(PICo24_FreeRTOS_For_${TARGET} PRIVATE -mcpu=${CPU_NAME})
-    target_include_directories(PICo24_FreeRTOS_For_${TARGET} PUBLIC ${PICo24_SRC_DIR}/Components)
-
-    add_library(PICo24_Lua_For_${TARGET} "${PICo24_Lua_SOURCES}")
-    target_compile_options(PICo24_Lua_For_${TARGET} PRIVATE -mcpu=${CPU_NAME})
-    target_include_directories(PICo24_Lua_For_${TARGET} PUBLIC ${PICo24_SRC_DIR}/Components)
-
     foreach(FEATURE ${FEATURE_LIST})
         if (${FEATURE} STREQUAL "FreeRTOS")
             message("-- PICo24: Enabling feature: FreeRTOS")
+            set(PICo24_FreeRTOS_Enabled_For_${TARGET} 1)
+
+            add_library(PICo24_FreeRTOS_For_${TARGET} "${PICo24_FreeRTOS_SOURCES}")
+            target_compile_options(PICo24_FreeRTOS_For_${TARGET} PRIVATE -mcpu=${CPU_NAME})
+            target_include_directories(PICo24_FreeRTOS_For_${TARGET} PUBLIC ${PICo24_SRC_DIR}/Components)
+
             target_compile_definitions(PICo24_Core_For_${TARGET} PUBLIC -DPICo24_FreeRTOS_Enabled=1)
             target_compile_definitions(PICo24_ScratchLibc_For_${TARGET} PUBLIC -DPICo24_FreeRTOS_Enabled=1)
             target_compile_definitions(PICo24_FreeRTOS_For_${TARGET} PUBLIC -DPICo24_FreeRTOS_Enabled=1)
             target_compile_definitions(${BOARD_OUT_NAME} PUBLIC -DPICo24_FreeRTOS_Enabled=1)
         endif()
     endforeach()
+
+    if (${PICo24_FreeRTOS_Enabled_For_${TARGET}})
+
+    else()
+        add_library(PICo24_FreeRTOS_For_${TARGET} INTERFACE)
+    endif()
+
+    add_library(PICo24_Lua_For_${TARGET} "${PICo24_Lua_SOURCES}")
+    target_compile_options(PICo24_Lua_For_${TARGET} PRIVATE -mcpu=${CPU_NAME})
+    target_include_directories(PICo24_Lua_For_${TARGET} PUBLIC ${PICo24_SRC_DIR}/Components)
 
     add_library(lwipcore_For_${TARGET} ${lwipnoapps_SRCS})
     target_compile_options(lwipcore_For_${TARGET} PRIVATE -mcpu=${CPU_NAME})
@@ -101,6 +109,7 @@ function(pico24_target_configure TARGET BOARD PERIPH_LIST FEATURE_LIST)
 
     add_library(PICo24_For_${TARGET} INTERFACE)
     target_link_libraries(PICo24_For_${TARGET} INTERFACE "-Wl,--start-group" PICo24_Core_For_${TARGET} ${BOARD_OUT_NAME} PICo24_ScratchLibc_For_${TARGET} PICo24_FreeRTOS_For_${TARGET} PICo24_Lua_For_${TARGET} lwipcore_For_${TARGET} lwipallapps_For_${TARGET} "-Wl,--end-group")
+
     target_compile_options(PICo24_For_${TARGET} INTERFACE -mcpu=${CPU_NAME})
 
     target_link_libraries(${TARGET} PICo24_For_${TARGET})

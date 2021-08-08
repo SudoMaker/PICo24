@@ -212,8 +212,10 @@ typedef struct {
 	void *CDCDataOutHandle;
 	void *CDCDataInHandle;
 
+#ifdef PICo24_FreeRTOS_Enabled
 	QueueHandle_t rx_queue;
 	SemaphoreHandle_t tx_lock;
+#endif
 
 	uint8_t rx_queue_pending, rx_queue_pending_idx;
 } USBDeluxeDevice_CDCACMContext;

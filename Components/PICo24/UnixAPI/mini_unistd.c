@@ -47,6 +47,7 @@ static ssize_t write_cdc_acm(int fd, const void *buf, size_t count) {
 	return -1;
 }
 
+#ifdef PICo24_FreeRTOS_Enabled
 static ssize_t read_cdc_acm(int fd, void *buf, size_t count) {
 	fd &= 0xf;
 	uint8_t cdc_nr = 0;
@@ -63,6 +64,12 @@ static ssize_t read_cdc_acm(int fd, void *buf, size_t count) {
 
 	return -1;
 }
+#else
+static ssize_t read_cdc_acm(int fd, void *buf, size_t count) {
+	errno = ENOSYS;
+	return -1;
+}
+#endif
 #endif
 
 #ifdef PICo24_Enable_Peripheral_USB_DEVICE_CDC_NCM

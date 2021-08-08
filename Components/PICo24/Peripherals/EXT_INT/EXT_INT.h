@@ -37,7 +37,11 @@ enum {
 	EXTINT_NegativeEdge = 0x1,
 };
 
-
+extern EXTINT_HandleTypeDef hextint0;
+extern EXTINT_HandleTypeDef hextint1;
+extern EXTINT_HandleTypeDef hextint2;
+extern EXTINT_HandleTypeDef hextint3;
+extern EXTINT_HandleTypeDef hextint4;
 
 extern void EXTINT_Initialize(EXTINT_HandleTypeDef *hextint, uint8_t extint_mode, void (*callback)(void *userp), void *userp);
 extern void EXTINT_Enable(EXTINT_HandleTypeDef *hextint);

@@ -418,6 +418,7 @@ void USBDeluxe_Device_Tasks() {
 	}
 }
 
+#ifdef PICo24_FreeRTOS_Enabled
 void USBDeluxe_Device_Task(void *p) {
 	taskENTER_CRITICAL();
 	uint16_t idx = (uint16_t)p;
@@ -483,12 +484,15 @@ void USBDeluxe_Device_Task(void *p) {
 //		taskEXIT_CRITICAL();
 	}
 }
+#endif
 
 void USBDeluxe_Device_TaskCreate(uint16_t idx, const char *tag) {
 	char name[16];
 	sprintf(name, "USB %u: %s", idx, tag);
 
+#ifdef PICo24_FreeRTOS_Enabled
 	xTaskCreate(USBDeluxe_Device_Task, name, 384, (void *)idx, 3, NULL);
+#endif
 }
 
 #endif

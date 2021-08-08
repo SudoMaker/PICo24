@@ -60,8 +60,10 @@ void USBDeluxeDevice_CDC_ACM_Create(USBDeluxeDevice_CDCACMContext *cdc_ctx, void
 	cdc_ctx->USB_EP_COMM = usb_ep_comm;
 	cdc_ctx->USB_EP_DATA = usb_ep_data;
 
+#ifdef PICo24_FreeRTOS_Enabled
 	cdc_ctx->rx_queue = xQueueCreate(1, 1);
 	cdc_ctx->tx_lock = xSemaphoreCreateMutex();
+#endif
 }
 
 void USBDeluxeDevice_CDC_ACM_Init(USBDeluxeDevice_CDCACMContext *cdc_ctx) {
@@ -170,6 +172,7 @@ void USBDeluxeDevice_CDC_ACM_CheckRequest(USBDeluxeDevice_CDCACMContext *cdc_ctx
 }
 
 void USBDeluxeDevice_CDC_ACM_TryRx(USBDeluxeDevice_CDCACMContext *cdc_ctx) {
+#ifdef PICo24_FreeRTOS_Enabled
 	if (cdc_ctx->rx_queue_pending) {
 		if (xQueueSendToBack(cdc_ctx->rx_queue, &cdc_ctx->rx_queue_pending_idx, 0) == pdPASS) {
 			cdc_ctx->rx_queue_pending = 0;
@@ -177,6 +180,7 @@ void USBDeluxeDevice_CDC_ACM_TryRx(USBDeluxeDevice_CDCACMContext *cdc_ctx) {
 
 		return;
 	}
+#endif
 
 	if (!USBHandleBusy(cdc_ctx->CDCDataInHandle)) {
 		uint8_t cur_buf_idx = cdc_ctx->rx_buf_idx;
@@ -195,12 +199,14 @@ void USBDeluxeDevice_CDC_ACM_TryRx(USBDeluxeDevice_CDCACMContext *cdc_ctx) {
 		if (cdc_ctx->io_ops.RxDone) {
 			cdc_ctx->io_ops.RxDone(cdc_ctx->userp, cdc_ctx->rx_buf[cur_buf_idx], last_rx_len);
 		} else {
+#ifdef PICo24_FreeRTOS_Enabled
 			if (xQueueSendToBack(cdc_ctx->rx_queue, &cur_buf_idx, 0) == pdPASS) {
 				cdc_ctx->rx_queue_pending = 0;
 			} else {
 				cdc_ctx->rx_queue_pending = 1;
 				cdc_ctx->rx_queue_pending_idx = cur_buf_idx;
 			}
+#endif
 		}
 
 	}
@@ -209,7 +215,10 @@ void USBDeluxeDevice_CDC_ACM_TryRx(USBDeluxeDevice_CDCACMContext *cdc_ctx) {
 uint8_t USBDeluxeDevice_CDC_ACM_DoTx(USBDeluxeDevice_CDCACMContext *cdc_ctx) {
 	uint8_t tx_done = 0;
 
+#ifdef PICo24_FreeRTOS_Enabled
 	taskENTER_CRITICAL();
+#endif
+
 	USBMaskInterrupts();
 
 	if (!USBHandleBusy(cdc_ctx->CDCDataOutHandle)) { // Last TX completed
@@ -228,11 +237,14 @@ uint8_t USBDeluxeDevice_CDC_ACM_DoTx(USBDeluxeDevice_CDCACMContext *cdc_ctx) {
 	}
 
 	USBUnmaskInterrupts();
+
+#ifdef PICo24_FreeRTOS_Enabled
 	taskEXIT_CRITICAL();
 
 	if (tx_done == 1) {
 		xSemaphoreGive(cdc_ctx->tx_lock);
 	}
+#endif
 
 	return tx_done;
 }
@@ -242,6 +254,7 @@ void USBDeluxeDevice_CDC_ACM_Tasks(USBDeluxeDevice_CDCACMContext *cdc_ctx) {
 	USBDeluxeDevice_CDC_ACM_TryRx(cdc_ctx);
 }
 
+#ifdef PICo24_FreeRTOS_Enabled
 int USBDeluxeDevice_CDC_ACM_AcquireRxBuffer(USBDeluxeDevice_CDCACMContext *cdc_ctx, USBDeluxeDevice_CDC_UserBuffer *user_buf) {
 	uint8_t idx;
 
@@ -260,17 +273,6 @@ int USBDeluxeDevice_CDC_ACM_AcquireRxBuffer(USBDeluxeDevice_CDCACMContext *cdc_c
 void USBDeluxeDevice_CDC_ACM_AdvanceRxBuffer(USBDeluxeDevice_CDCACMContext *cdc_ctx) {
 	uint8_t idx;
 	xQueueReceive(cdc_ctx->rx_queue, &idx, UINT16_MAX);
-}
-
-int USBDeluxeDevice_CDC_ACM_AcquireTxBuffer(USBDeluxeDevice_CDCACMContext *cdc_ctx, USBDeluxeDevice_CDC_UserBuffer *user_buf) {
-	if (xSemaphoreTake(cdc_ctx->tx_lock, UINT16_MAX)) {
-		user_buf->buf = cdc_ctx->tx_buf[cdc_ctx->tx_buf_idx];
-		user_buf->buf_len = &cdc_ctx->tx_buf_len[cdc_ctx->tx_buf_idx];
-		return 0;
-	} else {
-		errno = EAGAIN;
-		return -1;
-	}
 }
 
 ssize_t USBDeluxeDevice_CDC_ACM_Read(USBDeluxeDevice_CDCACMContext *cdc_ctx, uint8_t *buf, size_t len) {
@@ -298,6 +300,24 @@ ssize_t USBDeluxeDevice_CDC_ACM_Read(USBDeluxeDevice_CDCACMContext *cdc_ctx, uin
 		}
 
 		return len;
+	}
+}
+
+#endif
+
+int USBDeluxeDevice_CDC_ACM_AcquireTxBuffer(USBDeluxeDevice_CDCACMContext *cdc_ctx, USBDeluxeDevice_CDC_UserBuffer *user_buf) {
+#ifdef PICo24_FreeRTOS_Enabled
+	int rc = xSemaphoreTake(cdc_ctx->tx_lock, UINT16_MAX);
+#else
+	int rc = cdc_ctx->tx_buf_len[cdc_ctx->tx_buf_idx] == 0;
+#endif
+	if (rc) {
+		user_buf->buf = cdc_ctx->tx_buf[cdc_ctx->tx_buf_idx];
+		user_buf->buf_len = &cdc_ctx->tx_buf_len[cdc_ctx->tx_buf_idx];
+		return 0;
+	} else {
+		errno = EAGAIN;
+		return -1;
 	}
 }
 
